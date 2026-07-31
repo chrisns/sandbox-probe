@@ -6,15 +6,15 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/chrisns/sandbox-probe/v5/pkg/probes"
-	"github.com/chrisns/sandbox-probe/v5/pkg/tasks"
+	"github.com/chrisns/sandbox-probe/v6/pkg/probes"
+	"github.com/chrisns/sandbox-probe/v6/pkg/tasks"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	reportv1 "github.com/chrisns/sandbox-probe/v5/api/gen/proto/report/v1"
+	reportv1 "github.com/chrisns/sandbox-probe/v6/api/gen/proto/report/v1"
 )
 
 var scanCmd = &cobra.Command{

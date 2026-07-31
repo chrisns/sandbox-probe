@@ -1,4 +1,4 @@
-module github.com/chrisns/sandbox-probe/v5
+module github.com/chrisns/sandbox-probe/v6
 
 go 1.25.6
 
