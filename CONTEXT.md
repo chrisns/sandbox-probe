@@ -114,6 +114,24 @@ identity (🟩→🟥 degradation, 🟥→🟩 improvement), attributed to the f
 component that moved (harness / probe / kernel / OS). The **flip-log** is the
 chronological list of flips — the actionable text beside the charts.
 
+### Enforcement badge vs mechanism
+`sandbox_detection` carries two different kinds of claim, and a new detector
+must know which one it is contributing to:
+- The **enforcement badge** — the wrapper name (`bubblewrap`, `docker`,
+  `firejail`, …) — is an *inferred* best guess at the tool, built from
+  ancestry, markers and, as a last resort, a restricted user namespace's ID
+  map. Treat it as a hypothesis, not an attested fact.
+- A **mechanism** (`seccomp-filter`, `no-new-privs`, `landlock`,
+  `user-namespace`, …) is *kernel-attested*: read directly off a kernel
+  interface (`/proc/self/status`, the uid_map), true regardless of whether the
+  wrapper name resolved. Mechanisms are emitted alongside the badge, never
+  folded into it.
+
+The user-namespace rule (a non-identity uid_map) is the **last resort** in the
+wrapper-name chain, tried only after every more specific runtime detector has
+had its chance to claim the run — a new detector belongs *above* it, not
+below.
+
 ### Tags
 `key=value` strings on a report's metadata carrying the run's context: the
 harness, its version (`claude=2.1.202`), sandbox mode, runner OS. Versions are

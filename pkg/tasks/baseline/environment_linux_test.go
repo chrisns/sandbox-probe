@@ -89,3 +89,45 @@ func TestGetContainerRuntimeUIDMap(t *testing.T) {
 		})
 	}
 }
+
+// TestActiveMechanismsUserNamespace pins that "user-namespace" appears in the mechanism list exactly
+// when the uid_map is non-identity, regardless of whether the wrapper name resolved to bubblewrap or
+// stayed unknown — the mechanism is kernel-attested and separate from the wrapper inference.
+func TestActiveMechanismsUserNamespace(t *testing.T) {
+	origRead := readFile
+	t.Cleanup(func() { readFile = origRead })
+
+	for _, tt := range []struct {
+		name   string
+		uidMap string // "" = absent/unreadable
+		want   bool
+	}{
+		{name: "identity map: no user namespace", uidMap: "0 0 4294967295", want: false},
+		{name: "map keeping invoking uid: user namespace", uidMap: "1001 1001 1", want: true},
+		{name: "map remapping inner user to root: user namespace", uidMap: "0 1001 1", want: true},
+		{name: "absent or unreadable map: no user namespace", uidMap: "", want: false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			readFile = func(path string) ([]byte, error) {
+				if path == "/proc/self/uid_map" {
+					if tt.uidMap == "" {
+						return nil, fmt.Errorf("file not found")
+					}
+					return []byte(tt.uidMap), nil
+				}
+				return nil, fmt.Errorf("file not found")
+			}
+
+			mechanisms := ActiveMechanisms()
+			found := false
+			for _, m := range mechanisms {
+				if m == "user-namespace" {
+					found = true
+				}
+			}
+			if found != tt.want {
+				t.Errorf("uid_map=%q: user-namespace present=%v, want %v (mechanisms=%v)", tt.uidMap, found, tt.want, mechanisms)
+			}
+		})
+	}
+}

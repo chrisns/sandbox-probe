@@ -350,6 +350,13 @@ func GetBubbleWrap(pid int) (bool, error) {
 func ActiveMechanisms() []string {
 	var mechanisms []string
 
+	// User namespace: proven directly by the uid_map, independent of whether the wrapper name
+	// could be resolved (bubblewrap or otherwise). Kept separate from the wrapper inference above —
+	// see isUserNamespaceWithUIDMap's doc comment for why the ID map shape doesn't gate this.
+	if isUserNamespaceWithUIDMap() {
+		mechanisms = append(mechanisms, "user-namespace")
+	}
+
 	// /proc/self/status fields (all kernels that have the feature export it here)
 	if s, err := readProcSelfStatus(); err == nil {
 		// Seccomp field: 0=none, 1=strict, 2=filter/notify
