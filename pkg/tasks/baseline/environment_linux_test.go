@@ -16,11 +16,10 @@ func Test_getHostMounts(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TestGetContainerRuntimeUIDMap pins today's (pre-fix) behaviour for the /proc/self/uid_map
-// fallback, now that the read goes through the same readFile indirection as the AppArmor and
-// systemd-container marker tables above it. It is a prerequisite for #6: the broadened
-// "any non-identity map" rule lands in a follow-up ticket and will flip the "keeps invoking uid"
-// case below from RuntimeUnknown to RuntimeBubblewrap.
+// TestGetContainerRuntimeUIDMap drives the /proc/self/uid_map fallback through the same readFile
+// indirection as the AppArmor and systemd-container marker tables above it. Any map other than the
+// init namespace's identity map of the whole uid range is a restricted user namespace; the last
+// cases pin the ordering, where a more specific runtime's evidence must still outrank it.
 func TestGetContainerRuntimeUIDMap(t *testing.T) {
 	origRead, origAttr, origExists, origLandlock, origChroot := readFile, readProcAttr, fileExistsFunc, probeForLandlock, isChroot
 	t.Cleanup(func() {
@@ -34,20 +33,32 @@ func TestGetContainerRuntimeUIDMap(t *testing.T) {
 	for _, tt := range []struct {
 		name        string
 		uidMap      string // /proc/self/uid_map contents ("" = absent/unreadable)
+		cgroup      string // /proc/self/cgroup contents ("" = unreadable)
+		marker      string // /run/systemd/container contents (defaults to an unnamed marker)
+		env         string // the "container" environment variable
 		wantRuntime ContainerRuntime
 	}{
-		// Identity map for the full range: no user namespace, unaffected by this fallback.
-		{"identity map", "0 0 4294967295", RuntimeUnknown},
-		// The exact shape that causes the reported defect: bwrap invoked without remapping the
-		// inner user to root keeps the invoking uid. Today's inside-uid-must-be-0 check rejects
-		// it, so it falls through to unknown instead of resolving to bubblewrap.
-		{"map keeping invoking uid (defect)", "1001 1001 1", RuntimeUnknown},
-		// Inner user remapped to root: already detected today, proving this pins current
-		// behaviour rather than the yet-to-land broadening.
-		{"map remapping inner user to root", "0 1001 1", RuntimeBubblewrap},
-		{"absent or unreadable map", "", RuntimeUnknown},
+		// Identity map for the full range: the init namespace, so no user namespace and the
+		// output is whatever an unconfined baseline reports.
+		{name: "identity map", uidMap: "0 0 4294967295", wantRuntime: RuntimeUnknown},
+		// The exact shape that caused the reported defect: bwrap invoked without remapping the
+		// inner user to root keeps the invoking uid.
+		{name: "map keeping invoking uid", uidMap: "1001 1001 1", wantRuntime: RuntimeBubblewrap},
+		// Inner user remapped to root: detected before this rule was broadened, and still is.
+		{name: "map remapping inner user to root", uidMap: "0 1001 1", wantRuntime: RuntimeBubblewrap},
+		// Identity mapping of a truncated range is still a restricted namespace.
+		{name: "identity map of a truncated range", uidMap: "0 0 1000", wantRuntime: RuntimeBubblewrap},
+		{name: "absent or unreadable map", uidMap: "", wantRuntime: RuntimeUnknown},
+		// Ordering: a specific runtime's evidence alongside a restricted map still wins, so the
+		// broadened rule cannot relabel a rootless container or an nspawn run as bubblewrap.
+		{name: "cgroup string outranks restricted map", uidMap: "1001 1001 1", cgroup: "0::/docker/abc", wantRuntime: RuntimeDocker},
+		{name: "container marker outranks restricted map", uidMap: "1001 1001 1", marker: "systemd-nspawn", wantRuntime: RuntimeNspawn},
+		{name: "container env var outranks restricted map", uidMap: "1001 1001 1", env: "podman", wantRuntime: RuntimePodman},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.env != "" {
+				t.Setenv("container", tt.env)
+			}
 			readFile = func(path string) ([]byte, error) {
 				switch path {
 				case "/proc/self/uid_map":
@@ -55,11 +66,19 @@ func TestGetContainerRuntimeUIDMap(t *testing.T) {
 						return nil, fmt.Errorf("file not found")
 					}
 					return []byte(tt.uidMap), nil
+				case "/proc/self/cgroup":
+					if tt.cgroup == "" {
+						return nil, fmt.Errorf("file not found")
+					}
+					return []byte(tt.cgroup), nil
 				case "/run/systemd/container":
 					// An unnamed marker forces identifiedRuntime to RuntimeUnknown so the final
 					// no-new-privs fallback is deterministic regardless of the real process's
 					// NoNewPrivs bit on the machine running the test.
-					return []byte("some-manager\n"), nil
+					if tt.marker == "" {
+						return []byte("some-manager\n"), nil
+					}
+					return []byte(tt.marker + "\n"), nil
 				default:
 					return nil, fmt.Errorf("file not found")
 				}

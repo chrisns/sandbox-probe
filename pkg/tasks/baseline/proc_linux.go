@@ -41,9 +41,11 @@ func isProcSelfSetNoNewPrivs() bool {
 	return enabled
 }
 
-// isUserNamespaceWithUIDMap returns true when /proc/self/uid_map shows that
-// uid 0 inside the current namespace maps to a non-zero uid in the parent
-// namespace — the primary indicator of a bwrap user namespace.
+// isUserNamespaceWithUIDMap returns true when /proc/self/uid_map is anything other than the init
+// namespace's identity map of the whole uid range — a shifted range, a truncated one, or one that
+// keeps the invoking uid all mean a restricted user namespace. Whether the inner user was remapped
+// to root is an invocation detail of the tool (bwrap is frequently invoked without remapping) and
+// not a property of the namespace. An absent or unreadable map means no user namespace.
 func isUserNamespaceWithUIDMap() bool {
 	data, err := readFile("/proc/self/uid_map")
 	if err != nil {
@@ -57,12 +59,12 @@ func isUserNamespaceWithUIDMap() bool {
 		if len(line) < 3 {
 			continue
 		}
-		insideUID := line[0]
-		outsideUID := line[1]
-		if insideUID == "0" && outsideUID != "0" {
-			log.Info().Msgf("user namespace detected: uid 0 inside maps to uid %s outside", outsideUID)
-			return true
+		insideUID, outsideUID, count := line[0], line[1], line[2]
+		if insideUID == "0" && outsideUID == "0" && count == "4294967295" {
+			continue // the init namespace's identity map
 		}
+		log.Info().Msgf("user namespace detected: uid %s inside maps to uid %s outside (count %s)", insideUID, outsideUID, count)
+		return true
 	}
 	return false
 }
