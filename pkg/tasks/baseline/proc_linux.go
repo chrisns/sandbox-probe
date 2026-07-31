@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"bufio"
-	"os"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -46,13 +45,12 @@ func isProcSelfSetNoNewPrivs() bool {
 // uid 0 inside the current namespace maps to a non-zero uid in the parent
 // namespace — the primary indicator of a bwrap user namespace.
 func isUserNamespaceWithUIDMap() bool {
-	f, err := os.Open("/proc/self/uid_map")
+	data, err := readFile("/proc/self/uid_map")
 	if err != nil {
 		return false
 	}
-	defer f.Close()
 
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(strings.NewReader(string(data)))
 	for scanner.Scan() {
 		line := strings.Fields(scanner.Text())
 		// uid_map columns: inside-uid  outside-uid  count
