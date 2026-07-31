@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	reportv1 "github.com/controlplaneio/sandbox-probe/api/gen/proto/report/v1"
-	"github.com/controlplaneio/sandbox-probe/pkg/models"
+	reportv1 "github.com/chrisns/sandbox-probe/v5/api/gen/proto/report/v1"
+	"github.com/chrisns/sandbox-probe/v5/pkg/models"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

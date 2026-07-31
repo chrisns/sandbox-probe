@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	cmdBasedTasks "github.com/controlplaneio/sandbox-probe/pkg/tasks/cmd-based"
+	cmdBasedTasks "github.com/chrisns/sandbox-probe/v5/pkg/tasks/cmd-based"
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/types/known/structpb"
 

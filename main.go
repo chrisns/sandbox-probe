@@ -1,6 +1,6 @@
 package main
 
-import "github.com/controlplaneio/sandbox-probe/cmd"
+import "github.com/chrisns/sandbox-probe/v5/cmd"
 
 func main() {
 	cmd.Execute()

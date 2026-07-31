@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/controlplaneio/sandbox-probe/pkg/models"
+	"github.com/chrisns/sandbox-probe/v5/pkg/models"
 	"github.com/prometheus/procfs"
 	"github.com/rs/zerolog/log"
 )
