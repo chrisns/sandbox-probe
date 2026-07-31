@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/controlplaneio/sandbox-probe/pkg/tasks"
+	"github.com/chrisns/sandbox-probe/v5/pkg/tasks"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

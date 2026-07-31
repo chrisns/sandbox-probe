@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/controlplaneio/sandbox-probe/pkg/models"
+	"github.com/chrisns/sandbox-probe/v5/pkg/models"
 	"github.com/rs/zerolog/log"
 )
 

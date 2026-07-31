@@ -1,5 +1,5 @@
 NAME := sandbox-probe
-GITHUB_ORG = controlplaneio
+GITHUB_ORG = chrisns
 PKG := github.com/$(GITHUB_ORG)/$(NAME)
 
 SHELL := /bin/bash

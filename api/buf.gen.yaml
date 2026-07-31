@@ -3,7 +3,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/controlplaneio/sandbox-probe/api/gen
+      value: github.com/chrisns/sandbox-probe/v5/api/gen
 plugins:
   - remote: buf.build/protocolbuffers/go
     out: gen
