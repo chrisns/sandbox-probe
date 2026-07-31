@@ -1,7 +1,5 @@
 # Security Policy
 
-## Our Security Address
+## Reporting a Vulnerability
 
-Contact: `security@control-plane.io`
-Encryption: `https://keybase.io/sublimino/pgp_keys.asc`
-Disclosure: `Full`
+Please contact [chris@cns.me.uk](mailto:chris@cns.me.uk) [pgp/gpg key](https://github.com/chrisns.gpg)
