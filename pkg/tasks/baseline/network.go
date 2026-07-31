@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/chrisns/sandbox-probe/v5/pkg/models"
+	"github.com/chrisns/sandbox-probe/v6/pkg/models"
 	"github.com/rs/zerolog/log"
 )
 

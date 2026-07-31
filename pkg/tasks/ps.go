@@ -6,8 +6,8 @@ import (
 	"os"
 	"runtime"
 
-	reportv1 "github.com/chrisns/sandbox-probe/v5/api/gen/proto/report/v1"
-	cmdBasedTasks "github.com/chrisns/sandbox-probe/v5/pkg/tasks/cmd-based"
+	reportv1 "github.com/chrisns/sandbox-probe/v6/api/gen/proto/report/v1"
+	cmdBasedTasks "github.com/chrisns/sandbox-probe/v6/pkg/tasks/cmd-based"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/types/known/structpb"
 )

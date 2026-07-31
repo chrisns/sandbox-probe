@@ -3,7 +3,7 @@ package tasks
 import (
 	"os"
 
-	"github.com/chrisns/sandbox-probe/v5/pkg/models"
+	"github.com/chrisns/sandbox-probe/v6/pkg/models"
 )
 
 // fileExistsFunc checks if a file or directory exists.

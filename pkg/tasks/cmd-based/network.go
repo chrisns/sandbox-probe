@@ -7,7 +7,7 @@ package tasks
 // 	"os/exec"
 // 	"strings"
 
-// 	"github.com/chrisns/sandbox-probe/v5/pkg/models"
+// 	"github.com/chrisns/sandbox-probe/v6/pkg/models"
 // )
 
 // func getProxyMacOSCmdLine() (*models.ProxyConfig, error) {
