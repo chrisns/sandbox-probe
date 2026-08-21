@@ -1,3 +1,12 @@
+> [!IMPORTANT]
+> **This fork is archived. The work moved to [controlplaneio/sandbox-probe](https://github.com/controlplaneio/sandbox-probe).**
+>
+> Everything here landed upstream on 21 August 2026 in [controlplaneio/sandbox-probe#52](https://github.com/controlplaneio/sandbox-probe/pull/52) and was first released there as `v6.2.1`.
+>
+> Do not depend on this repository. Its module path `github.com/chrisns/sandbox-probe/v6` is frozen at `v6.1.2`. Use `github.com/controlplaneio/sandbox-probe/v6` instead.
+>
+> It is kept read-only because its tags and its `research/*` branches are cited by ADR 0002 and by the comparison repository's issue history.
+
 # Sandbox Probe
 
 "Do I trust this sandbox?" is a faith-based question — and faith is a rotten foundation for a threat model. Every AI coding agent ships with a story about what its sandbox can and cannot do: container policies, [Landlock](https://landlock.io/) rules, seccomp filters, "we only allow reads from the workspace". That story is the vendor's map. You are defending the territory: a developer's laptop, with dotfiles, an SSH agent, cloud credentials, and an agent that any sufficiently clever prompt injection might persuade to go for a wander.
